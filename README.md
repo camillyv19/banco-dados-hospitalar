@@ -10,6 +10,7 @@
 - Elen de Oliveira Nobrega 
 - Lucas Fabrício 
 - Pedro Gouveia 
+- Vitor Negrão 
 
 ## Objetivo Geral
 Desenvolver uma solução robusta utilizando recursos avançados de SQL
