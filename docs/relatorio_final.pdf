@@ -1,0 +1,217 @@
+ 1. Listar Consultas com nomes de Pacientes e Médicos
+sql
+Copiar
+Editar
+SELECT 
+    c.id_consulta,
+    p.nome AS paciente,
+    m.nome AS medico,
+    c.data_consulta,
+    c.diagnostico
+FROM consulta c
+INNER JOIN paciente p ON c.id_paciente = p.id_paciente
+INNER JOIN medico m ON c.id_medico = m.id_medico;
+Mostra consultas, incluindo o nome do paciente, do médico, data e diagnóstico.
+
+Usa INNER JOIN, ou seja, só retorna consultas que tenham um paciente e um médico cadastrados.
+
+🔹 2. Pacientes e seus exames (se houver)
+sql
+Copiar
+Editar
+SELECT 
+    p.id_paciente,
+    p.nome,
+    e.tipo_exame,
+    e.resultado
+FROM paciente p
+LEFT JOIN consulta c ON p.id_paciente = c.id_paciente
+LEFT JOIN exame e ON c.id_consulta = e.id_consulta;
+Lista todos os pacientes com seus exames (tipo e resultado), mesmo que não tenham exames.
+
+Usa LEFT JOIN, para garantir que todos os pacientes apareçam, mesmo que sem consulta ou exame.
+
+🔹 3. Todos os pacientes e suas consultas com exames (se houver)
+sql
+Copiar
+Editar
+SELECT 
+    e.id_exame,
+    e.tipo_exame,
+    c.id_consulta,
+    p.nome AS paciente
+FROM exame e
+RIGHT JOIN consulta c ON e.id_consulta = c.id_consulta
+RIGHT JOIN paciente p ON c.id_paciente = p.id_paciente;
+Usa RIGHT JOIN para garantir que todas as consultas e pacientes apareçam, mesmo que sem exame.
+
+🔹 4. Lista de médicos e suas consultas
+sql
+Copiar
+Editar
+SELECT 
+    m.id_medico,
+    m.nome AS medico,
+    c.id_consulta,
+    c.data_consulta
+FROM medico m
+FULL JOIN consulta c ON m.id_medico = c.id_medico;
+Usa FULL JOIN para mostrar todos os médicos e todas as consultas, mesmo que:
+
+um médico não tenha consulta ainda;
+
+uma consulta esteja sem médico (caso raro).
+
+🔹 5. Resumo de pacientes: total de consultas e exames
+sql
+Copiar
+Editar
+SELECT 
+    p.id_paciente,
+    p.nome,
+    tot.total_consultas,
+    tot.total_exames
+FROM paciente p
+LEFT JOIN (
+    SELECT 
+        c.id_paciente,
+        COUNT(DISTINCT c.id_consulta) AS total_consultas,
+        COUNT(e.id_exame) AS total_exames
+    FROM consulta c
+    LEFT JOIN exame e ON c.id_consulta = e.id_consulta
+    GROUP BY c.id_paciente
+) AS tot ON p.id_paciente = tot.id_paciente;
+Traz todos os pacientes, e para cada um:
+
+Quantidade de consultas distintas;
+
+Quantidade total de exames realizados.
+
+🔹 6. Total de consultas por paciente
+sql
+Copiar
+Editar
+SELECT 
+    p.id_paciente,
+    p.nome,
+    (SELECT COUNT(*) FROM consulta c WHERE c.id_paciente = p.id_paciente) AS total_consultas
+FROM paciente p;
+Uma subconsulta para contar o total de consultas por paciente.
+
+🔹 7. Pacientes que fizeram mais exames que a média
+sql
+Copiar
+Editar
+SELECT 
+    sub.id_paciente,
+    sub.qtd_exames
+FROM (
+    SELECT c.id_paciente, COUNT(e.id_exame) AS qtd_exames
+    FROM consulta c
+    LEFT JOIN exame e ON c.id_consulta = e.id_consulta
+    GROUP BY c.id_paciente
+) AS sub
+WHERE sub.qtd_exames > (
+    SELECT AVG(cnt) FROM (
+        SELECT COUNT(e.id_exame) AS cnt
+        FROM consulta c
+        LEFT JOIN exame e ON c.id_consulta = e.id_consulta
+        GROUP BY c.id_paciente
+    ) AS media
+);
+Primeiro conta os exames por paciente;
+
+Depois calcula a média de exames por paciente;
+
+Retorna apenas os pacientes que estão acima da média.
+
+🔹 8. Pacientes que passaram por internação
+sql
+Copiar
+Editar
+SELECT 
+    p.id_paciente,
+    p.nome
+FROM paciente p
+WHERE EXISTS (
+    SELECT 1 FROM internacao i WHERE i.id_paciente = p.id_paciente
+);
+Retorna os pacientes que têm ao menos uma internação registrada.
+
+Usa EXISTS para verificar a existência da relação.
+
+🔹 9. Médicos que nunca fizeram consultas
+sql
+Copiar
+Editar
+SELECT 
+    m.id_medico,
+    m.nome
+FROM medico m
+WHERE NOT EXISTS (
+    SELECT 1 FROM consulta c WHERE c.id_medico = m.id_medico
+);
+Lista os médicos sem nenhuma consulta associada.
+
+🔹 10. Consultas e exames por médico
+sql
+Copiar
+Editar
+SELECT 
+    m.id_medico,
+    m.nome,
+    COUNT(DISTINCT c.id_consulta) AS total_consultas,
+    SUM(COALESCE(ex_sub.total_exames, 0)) AS total_exames
+FROM medico m
+LEFT JOIN consulta c ON m.id_medico = c.id_medico
+LEFT JOIN (
+    SELECT e.id_consulta, COUNT(*) AS total_exames
+    FROM exame e
+    GROUP BY e.id_consulta
+) ex_sub ON c.id_consulta = ex_sub.id_consulta
+GROUP BY m.id_medico, m.nome;
+Para cada médico, mostra:
+
+Total de consultas distintas;
+
+Total de exames das consultas desse médico.
+
+Usa COALESCE para tratar nulos como zero.
+
+🔁 Repetições
+Você repetiu algumas consultas, como:
+
+Total de consultas por paciente;
+
+Pacientes com exames acima da média;
+
+Pacientes internados;
+
+Médicos sem consulta;
+
+Resumo por médico.
+
+Isso não é um erro — pode ter sido feito para revisão ou testes.
+
+✅ Resumo geral:
+Você explorou muito bem os seguintes conceitos:
+
+INNER JOIN, LEFT JOIN, RIGHT JOIN, FULL JOIN
+
+Subqueries (SELECT dentro de SELECT)
+
+GROUP BY com agregações (COUNT, SUM, AVG)
+
+EXISTS e NOT EXISTS
+
+Filtros com WHERE e HAVING
+
+Essas consultas seriam muito úteis para relatórios em um sistema hospitalar, como:
+
+Desempenho de médicos;
+
+Pacientes em destaque;
+
+Carga de exames e consultas;
+
+Análise de internações.
