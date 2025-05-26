@@ -17,3 +17,14 @@ INSERT INTO exame VALUES
 INSERT INTO internacao VALUES
 (1, 1, 1, '2025-05-01 10:00:00', '2025-05-05 11:00:00', 'Avaliação cardiológica intensiva'),
 (2, 2, 2, '2025-05-10 15:00:00', NULL, 'Tratamento ortopédico emergencial');
+
+INSERT INTO internacao VALUES
+(1, 1, 1, '2025-05-01 10:00:00', '2025-05-05 11:00:00', 'Avaliação cardiológica intensiva', 101),
+(2, 2, 2, '2025-05-10 15:00:00', NULL, 'Tratamento ortopédico emergencial', 102);
+
+INSERT INTO leito (id, numero_leito, ocupado) VALUES
+(101, 'A101', FALSE), 
+(102, 'A102', FALSE),
+(103, 'B201', FALSE);
+
+UPDATE leito SET ocupado = TRUE where id = 102;

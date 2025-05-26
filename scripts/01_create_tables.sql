@@ -40,6 +40,14 @@ CREATE TABLE internacao (
     data_entrada DATETIME,
     data_saida DATETIME,
     motivo TEXT,
+    leito_id INT,
     FOREIGN KEY (id_paciente) REFERENCES paciente(id_paciente),
-    FOREIGN KEY (id_medico) REFERENCES medico(id_medico)
+    FOREIGN KEY (id_medico) REFERENCES medico(id_medico),
+    FOREIGN KEY (leito_id) REFERENCES leito(id)
+);
+
+CREATE TABLE leito (
+    id INT PRIMARY KEY,
+    numero_leito VARCHAR(10) UNIQUE NOT NULL,
+    ocupado BOOLEAN DEFAULT FALSE
 );
