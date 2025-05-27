@@ -1,5 +1,5 @@
-CREATE OR REPLACE PROCEDURE resumo_paciente
-LANGUAGE plpgsql
+CREATE OR REPLACE PROCEDURE resumo_paciente()
+language plpgsql
 AS $$
 DECLARE
 
@@ -14,11 +14,11 @@ DECLARE
 
 BEGIN
 
-    OPEN paciente_cursor
+    OPEN paciente_cursor;
 
     LOOP
 
-     FETCH paciente_cursor INTO paciente_record
+       FETCH paciente_cursor INTO paciente_record;
        EXIT WHEN NOT FOUND;
 
         SELECT COUNT(*) INTO total_consultas
@@ -32,7 +32,7 @@ BEGIN
 
         SELECT COUNT(*) INTO total_internacoes
         FROM internacao
-        WHERE id_paciente = paciente_record.id_paciente
+        WHERE id_paciente = paciente_record.id_paciente;
  
 
         RAISE NOTICE 'Paciente: % - Consultas: % - Exames: % - Internações: %', paciente_record.nome, total_consultas, total_exames, total_internacoes;
@@ -65,7 +65,7 @@ BEGIN
 
     LOOP
 
-     FETCH  busca_cursor;
+     FETCH  busca_cursor INTO busca_record;
        EXIT WHEN NOT FOUND;
 
         RAISE NOTICE 'Paciente: %, Tipo: %, Data: %',
@@ -86,7 +86,7 @@ BEGIN
     IF data_alta IS NULL THEN
         UPDATE internacao
         SET data_saida = CURRENT_DATE
-        WHERE internacao.id_paciente = id_paciente;
+        WHERE internacao.id_paciente = id_paciente
         AND data_saida IS NULL;
 
     ELSE
@@ -98,16 +98,3 @@ BEGIN
 END;
 $$;  
  
-
-
-
-CREATE OR REPLACE PROCEDURE desativar_status(email_aluno VARCHAR)
-language plpgsql
-AS $$
-BEGIN
-   UPDATE alunos
-     SET status = 'inativo'
-   WHERE email = email_aluno;
-
-END;
-$$;

@@ -18,7 +18,7 @@ CREATE TABLE consulta (
     id_consulta INT PRIMARY KEY,
     id_paciente INT,
     id_medico INT,
-    data_consulta DATETIME NOT NULL,
+    data_consulta DATE NOT NULL,
     diagnostico TEXT,
     FOREIGN KEY (id_paciente) REFERENCES paciente(id_paciente),
     FOREIGN KEY (id_medico) REFERENCES medico(id_medico)
@@ -37,8 +37,8 @@ CREATE TABLE internacao (
     id_internacao INT PRIMARY KEY,
     id_paciente INT,
     id_medico INT,
-    data_entrada DATETIME,
-    data_saida DATETIME,
+    data_entrada DATE,
+    data_saida DATE,
     motivo TEXT,
     leito_id INT,
     FOREIGN KEY (id_paciente) REFERENCES paciente(id_paciente),
@@ -50,4 +50,10 @@ CREATE TABLE leito (
     id INT PRIMARY KEY,
     numero_leito VARCHAR(10) UNIQUE NOT NULL,
     ocupado BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE IF NOT EXISTS log_consulta (
+    id SERIAL PRIMARY KEY,
+    acao TEXT,
+    data TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
